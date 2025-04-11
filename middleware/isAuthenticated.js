@@ -20,6 +20,7 @@ import jwt from 'jsonwebtoken'
         next();
     } catch (error) {
         console.log(error);
+        next(error)
     }
 }
 
