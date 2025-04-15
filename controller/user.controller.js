@@ -165,34 +165,68 @@ export const updateProfile = async (req, res) => {
 };
 
 export const getUser = async (req, res) =>{
-    try {
-      const userId = req.id;
-      let user = await User.findById(userId);
-      if(!user){
+    // try {
+    //   const userId = req.id;
+    //   let user = await User.findById(userId);
+    //   if(!user){
+    //     return res.status(400).json({
+    //       message : "User not found",
+    //       success : false
+    //     })
+    //   }
+
+    //   user = {
+    //     _id: user._id,
+    //     fullname: user.fullname,
+    //     email: user.email,
+    //     phoneNumber: user.phoneNumber,
+    //     role: user.role,
+    //     profile: user.profile,
+    //   };
+
+
+    //   return res.status(200).json({
+    //     user,
+    //     success : true
+    //   });
+
+      
+    // } catch (error) {
+    //   console.log(error);
+      
+    // }
+    const userId = req.id;
+    const promise = new Promise((resolve, rejest)=>{
+        User.findById(userId).then((user)=>{
+            if(!user){
+                return rejest({
+                    message : "User not found",
+                    success : false
+                })
+            }
+            user = {
+                _id: user._id,
+                fullname: user.fullname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role,
+                profile: user.profile,
+              };
+            resolve(user);
+        }).catch((error)=>{
+            rejest(error)
+        });
+
+    }).then((user)=>{
+        return res.status(200).json({
+            user,
+            success : true
+          });
+    }).catch((error)=>{
         return res.status(400).json({
-          message : "User not found",
-          success : false
+            message : error.message,
+            success : false
         })
-      }
-
-      user = {
-        _id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-        profile: user.profile,
-      };
-
-
-      return res.status(200).json({
-        user,
-        success : true
-      });
-
-      
-    } catch (error) {
-      console.log(error);
-      
-    }
+    })
+  
 }
