@@ -136,7 +136,17 @@ export const updateProfile = async (req, res) => {
     // update the data
 
     if (fullname) user.fullname = fullname;
-    if (email) user.email = email;
+    if (email) {
+      const existingUser = await User.find({ email });
+      if (existingUser.length > 0) {
+        return res.status(403).json({
+          message: "Email already exist",
+          success: false,
+        });
+      } else{
+        user.email = email;
+      }
+    }
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     if (skills) user.profile.skills = skillsArray;
@@ -155,7 +165,7 @@ export const updateProfile = async (req, res) => {
     };
 
     return res.status(200).json({
-      message: "Profile updates successfully",
+      message: "Profile updated successfully",
       user,
       success: true,
     });
