@@ -155,6 +155,7 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
+
     user = {
       _id: user._id,
       fullname: user.fullname,
@@ -214,6 +215,7 @@ export const getUser = async (req, res) =>{
                     success : false
                 })
             }
+
             user = {
                 _id: user._id,
                 fullname: user.fullname,
