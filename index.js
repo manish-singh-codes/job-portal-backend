@@ -9,7 +9,7 @@ import companyRouter from "./routes/company.route.js"
 import jobRouter from "./routes/jobs.route.js"
 import applicationRouter from "./routes/application.route.js"
 
-dotenv.config({});
+dotenv.config();
 const app = express();
 
 app.use(express.json());

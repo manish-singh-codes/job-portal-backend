@@ -49,6 +49,16 @@ export const register = async (req, res) => {
   }
 };
 
+export const verifyOtp = async (req, res) =>{
+    try {
+      const {otp } = req.body;
+      
+    } catch (error) {
+      console.log(error);
+      
+    }
+}
+
 export const login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
