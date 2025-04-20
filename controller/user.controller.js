@@ -2,6 +2,8 @@ import { User } from "../models/user.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import generateOTP from "../utils/generateOTP.js";
+import sendEmail from "../utils/sendEmail.js";
 
 export const register = async (req, res) => {
   try {
@@ -21,13 +23,23 @@ export const register = async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const otp = generateOTP();
+
+    sendEmail(
+       email,
+       "Verify your email to create your account",
+       otp
+    )
     const createdUser = await User.create({
       fullname,
       email,
       phoneNumber,
       password: hashedPassword,
       role,
+      otp
     });
+
+
     return res.status(200).json({
       message: "User created successfully",
       success: true,

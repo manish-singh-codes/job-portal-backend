@@ -33,6 +33,13 @@ const userSchema = new mongoose.Schema(
       company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
       profilePhoto: { type: String, default: "" },
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
+    }
   },
   { timestamps: true }
 );
