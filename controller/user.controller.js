@@ -51,7 +51,16 @@ export const register = async (req, res) => {
 
 export const verifyOtp = async (req, res) =>{
     try {
-      const {otp } = req.body;
+      const {otp, email } = req.body;
+       const user = User.findOne({email});
+
+       if(!user){
+        return res.status(404).json({
+          message:"User not found this this email",
+          success: false
+        })
+       }
+
       
     } catch (error) {
       console.log(error);
