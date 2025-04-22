@@ -24,6 +24,7 @@ export const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const otp = generateOTP();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     sendEmail(
        email,
@@ -36,7 +37,8 @@ export const register = async (req, res) => {
       phoneNumber,
       password: hashedPassword,
       role,
-      otp
+      otp,
+      otpExpiresAt
     });
 
 
@@ -52,7 +54,7 @@ export const register = async (req, res) => {
 export const verifyOtp = async (req, res) =>{
     try {
       const {otp, email } = req.body;
-       const user = User.findOne({email});
+       const user = await User.findOne({email});
 
        if(!user){
         return res.status(404).json({
@@ -60,12 +62,61 @@ export const verifyOtp = async (req, res) =>{
           success: false
         })
        }
+       if(user.otpExpiresAt < new Date()){
+          return res.status(400).json({
+            message:"OTP expired",
+            success: false
+          })
+       }
+       if(user.otp !== otp){
+        return res.status(401).json({
+          message: "OTP is incorrect",
+          success: false
+        })
+       }
 
+       user.emailVerified = true;
+       user.otp = undefined;
+       user.otpExpiresAt = undefined;
+       await user.save();
+
+       return res.status(200).json({
+        message: "OTP verified successfully",
+        success: true
+      });
       
     } catch (error) {
       console.log(error);
       
     }
+}
+
+export const resend = async(req,res)=>{
+    const {email} = req.body;
+
+    const user = await User.findOne({email});
+    if(!user){
+      return res.status(401).json({
+        message: "User not registerd with this email"
+      })
+    }
+
+    const newOTP = generateOTP();
+    user.otp = newOTP;
+    user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    sendEmail(
+      email,
+      "Verify your email to create your account",
+      newOTP
+    )
+    
+    await user.save();
+    return res.status(200).json({
+      message: "OTP sent successfully",
+      success: true
+    })
+
 }
 
 export const login = async (req, res) => {
