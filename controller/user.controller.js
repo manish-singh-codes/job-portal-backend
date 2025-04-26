@@ -233,7 +233,7 @@ export const updateProfile = async (req, res) => {
     if (bio) user.profile.bio = bio;
     if (skills) user.profile.skills = skillsArray;
 
-    // resume comes later here ..........
+    // resume will comes later here ..........
 
     await user.save();
 
