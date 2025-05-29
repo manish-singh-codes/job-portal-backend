@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import generateOTP from "../utils/generateOTP.js";
 import sendEmail from "../utils/sendEmail.js";
+import uploadOnCloudinary from "../utils/cloudinary.js";
 
 export const register = async (req, res) => {
   try {
@@ -24,13 +25,11 @@ export const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const otp = generateOTP();
-    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    // If you want to store the profile picture, you can handle it here
+    const filePath = req.file ? req.file.path : null;
+    const url = await uploadOnCloudinary(filePath);
 
-    sendEmail(
-       email,
-       "Verify your email to create your account",
-       otp
-    )
     const createdUser = await User.create({
       fullname,
       email,
@@ -38,9 +37,17 @@ export const register = async (req, res) => {
       password: hashedPassword,
       role,
       otp,
-      otpExpiresAt
+      otpExpiresAt,
+      profile:{
+        profilePhoto: url
+      }
     });
-
+    sendEmail(
+       email,
+       "Verify your email to create your account",
+       otp
+    )
+    
 
     return res.status(200).json({
       message: "User created successfully",
