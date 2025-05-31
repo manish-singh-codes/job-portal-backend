@@ -98,6 +98,22 @@ export const verifyOtp = async (req, res) =>{
     }
 }
 
+export const googleRegister = async (req,res) => {
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    try {
+      const { access_token} = req.body;
+      if(!access_token){
+        return res.status(400).json({
+          message: "Access token is required",
+          success: false
+        })
+      }
+
+    } catch (error) {
+      
+    }
+}
+
 export const resend = async(req,res)=>{
     const {email} = req.body;
 

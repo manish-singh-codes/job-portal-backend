@@ -8,6 +8,7 @@ import upload from '../utils/multer.js';
 const router = express.Router();
 
 router.route('/register').post( upload.single('file'), register);
+router.route('/google/register').post();
 router.route('/verify').post(verifyOtp)
 router.route('/resend').post(resend)
 router.route('/login').post(login)
