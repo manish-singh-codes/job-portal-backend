@@ -108,6 +108,8 @@ export const googleRegister = async (req,res) => {
           success: false
         })
       }
+      const ticket = client.verifyToken(access_token);
+      const payload = ticket.getPayload();
 
     } catch (error) {
       
