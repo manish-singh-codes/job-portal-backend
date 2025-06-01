@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import generateOTP from "../utils/generateOTP.js";
 import sendEmail from "../utils/sendEmail.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
+import { OAuth2Client } from "google-auth-library";
 
 export const register = async (req, res) => {
   try {
@@ -101,20 +102,63 @@ export const verifyOtp = async (req, res) =>{
 export const googleRegister = async (req,res) => {
   const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     try {
-      const { access_token} = req.body;
-      if(!access_token){
+      const {id_token} = req.body;
+      if(!id_token){
         return res.status(400).json({
-          message: "Access token is required",
+          message: "ID token is required",
           success: false
         })
       }
-      const ticket = client.verifyToken(access_token);
-      const payload = ticket.getPayload();
+ 
+    const ticket = await client.verifyIdToken({
+      idToken: id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    if (!email || !name || !picture) {
+      return res.status(400).json({
+        message: "Invalid token payload",
+        success: false,
+      });
+    }
+
+    const password = Math.random().toString(36).slice(-8); // Generate a random password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        message: "User already exists",
+        success: false,
+      });
+    }
+
+    const createdUser = await User.create({
+      fullname: name,
+      password: hashedPassword,
+      email,
+      profile:{
+        profilePhoto: picture
+      }
+    })
+    return res.status(200).json({
+      message: "User created successfully",
+      success: true,
+      user: {
+        _id: createdUser._id,
+        fullname: createdUser.fullname,
+        email: createdUser.email,
+        profilePhoto: createdUser.profile.profilePhoto
+      }
+    })
     } catch (error) {
-      
+      console.log("error",error);
     }
 }
+
 
 export const resend = async(req,res)=>{
     const {email} = req.body;
