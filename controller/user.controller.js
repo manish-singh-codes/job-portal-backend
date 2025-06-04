@@ -99,53 +99,51 @@ export const verifyOtp = async (req, res) =>{
     }
 }
 
-export const googleRegister = async (req,res) => {
+export const googleRegister = async (req, res) => {
   const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
   const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-    try {
-      const {code,role} = req.body;
-      if(!code){
-        return res.status(400).json({
-          message: "ID token is required",
-          success: false
-        })
-      }
- 
-      const response = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-          code,
-          client_id: GOOGLE_CLIENT_ID,
-          client_secret: GOOGLE_CLIENT_SECRET,
-         redirect_uri: "postmessage",
-          grant_type: "authorization_code"
-        }).toString()
+  try {
+    const { code, role } = req.body;
+    if (!code) {
+      return res.status(400).json({
+        message: "ID token is required",
+        success: false,
       });
-      if(!response.ok){
-        console.log("response",response);
-        return res.status(400).json({ 
-          message: "Failed to fetch user data from Google",
-          success: false
-        });
-      }
-      console.log("response",response);
-      const responseData = await response.json();
-      if (!responseData.id_token) {
-        return res.status(400).json({
-          message: "ID token not found in response",
-          success: false,
-        });
-      }
+    }
+
+    const response = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: "postmessage",
+        grant_type: "authorization_code",
+      }).toString(),
+    });
+    if (!response.ok) {
+      return res.status(400).json({
+        message: "Failed to fetch user data from Google",
+        success: false,
+      });
+    }
+    const responseData = await response.json();
+    if (!responseData.id_token) {
+      return res.status(400).json({
+        message: "ID token not found in response",
+        success: false,
+      });
+    }
     const client = new OAuth2Client(GOOGLE_CLIENT_ID);
     const ticket = await client.verifyIdToken({
       idToken: responseData.id_token,
       audience: GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-      const { email, name, picture } = payload;
+    const { email, name, picture } = payload;
 
     if (!email || !name || !picture) {
       return res.status(400).json({
@@ -153,7 +151,6 @@ export const googleRegister = async (req,res) => {
         success: false,
       });
     }
-
     const password = Math.random().toString(36).slice(-8); // Generate a random password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -170,10 +167,10 @@ export const googleRegister = async (req,res) => {
       password: hashedPassword,
       role,
       email,
-      profile:{
-        profilePhoto: picture
-      }
-    })
+      profile: {
+        profilePhoto: picture,
+      },
+    });
     return res.status(200).json({
       message: "User created successfully",
       success: true,
@@ -181,13 +178,13 @@ export const googleRegister = async (req,res) => {
         _id: createdUser._id,
         fullname: createdUser.fullname,
         email: createdUser.email,
-        profilePhoto: createdUser.profile.profilePhoto
-      }
-    })
-    } catch (error) {
-      console.log("error",error);
-    }
-}
+        profilePhoto: createdUser.profile.profilePhoto,
+      },
+    });
+  } catch (error) {
+    console.log("error", error);
+  }
+};
 
 
 export const resend = async(req,res)=>{
