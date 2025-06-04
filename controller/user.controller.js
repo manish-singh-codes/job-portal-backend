@@ -100,23 +100,52 @@ export const verifyOtp = async (req, res) =>{
 }
 
 export const googleRegister = async (req,res) => {
-  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+  const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
     try {
-      const {id_token} = req.body;
-      if(!id_token){
+      const {code,role} = req.body;
+      if(!code){
         return res.status(400).json({
           message: "ID token is required",
           success: false
         })
       }
  
+      const response = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          code,
+          client_id: GOOGLE_CLIENT_ID,
+          client_secret: GOOGLE_CLIENT_SECRET,
+         redirect_uri: "postmessage",
+          grant_type: "authorization_code"
+        }).toString()
+      });
+      if(!response.ok){
+        console.log("response",response);
+        return res.status(400).json({ 
+          message: "Failed to fetch user data from Google",
+          success: false
+        });
+      }
+      console.log("response",response);
+      const responseData = await response.json();
+      if (!responseData.id_token) {
+        return res.status(400).json({
+          message: "ID token not found in response",
+          success: false,
+        });
+      }
+    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
     const ticket = await client.verifyIdToken({
-      idToken: id_token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      idToken: responseData.id_token,
+      audience: GOOGLE_CLIENT_ID,
     });
-
     const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
+      const { email, name, picture } = payload;
 
     if (!email || !name || !picture) {
       return res.status(400).json({
@@ -139,6 +168,7 @@ export const googleRegister = async (req,res) => {
     const createdUser = await User.create({
       fullname: name,
       password: hashedPassword,
+      role,
       email,
       profile:{
         profilePhoto: picture
