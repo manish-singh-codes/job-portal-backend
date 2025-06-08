@@ -499,9 +499,16 @@ export const forgotPassword = async (req, res) => {
           success: false
         })
       }
-      const resetToken = generateOTP();
-      const resetTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      user.resetToken = resetToken;
+      user.resetTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+      await user.save();
+      const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
    } catch (error) {
-    
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error",
+        success: false
+      });
    }
 }
