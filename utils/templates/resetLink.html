@@ -1,0 +1,44 @@
+<div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
+  <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); overflow: hidden;">
+    
+    <!-- Header -->
+    <div style="background-color: #1e40af; padding: 20px 0; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0;">JobNest</h1>
+      <p style="color: #dbeafe; margin: 5px 0 0;">Find Your Next Tech Opportunity</p>
+    </div>
+    
+    <!-- Body -->
+    <div style="padding: 30px;">
+      <h2 style="color: #1e3a8a; text-align: center;">Reset Your Password</h2>
+      <p style="font-size: 16px; color: #333333; text-align: center;">
+        We received a request to reset your password for your <strong>JobNest</strong> account.
+      </p>
+      <p style="font-size: 16px; color: #333333; text-align: center;">
+        Click the button below to reset it:
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="{{reset_link}}" style="display: inline-block; background-color: #1e40af; color: #ffffff; padding: 15px 30px; font-size: 16px; border-radius: 6px; text-decoration: none;">
+          Reset Password
+        </a>
+      </div>
+
+      <p style="font-size: 14px; color: #555555; text-align: center;">
+        This link is valid for <strong>15 minutes</strong>. If you did not request a password reset, please ignore this email or contact support.
+      </p>
+
+      <p style="font-size: 14px; color: #999999; text-align: center; margin-top: 20px;">
+        If the button above does not work, copy and paste the following URL into your browser:<br />
+        <a href="{{reset_link}}" style="color: #1e40af;">{{reset_link}}</a>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 15px; text-align: center;">
+      <p style="font-size: 12px; color: #64748b; margin: 0;">
+        © {{year}} JobNest. All rights reserved.
+      </p>
+    </div>
+
+  </div>
+</div>
