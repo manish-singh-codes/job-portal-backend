@@ -61,6 +61,62 @@ export const register = async (req, res) => {
   }
 };
 
+export const verifyEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required",
+        success: false,
+      });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ 
+        message: "User not registered with this email",
+        success: false,
+      }); 
+    }
+    if(user.emailVerified) {
+      return res.status(400).json({
+        message: "Email already verified. You can login now",
+        success: false,
+      });
+    }
+    const otp = generateOTP();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    
+    user.otp = otp;
+    user.otpExpiresAt = otpExpiresAt;
+    
+    await user.save();
+    // Send OTP to user's email
+    // Assuming sendEmail is a function that sends an email
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found with this email",
+        success: false,
+      });
+    }
+    sendEmail(
+      email,
+      "Verify your email to create your account",
+      otp
+    );
+    return res.status(200).json({
+      message: "OTP sent to your email",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);   
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};
+
+
 export const verifyOtp = async (req, res) =>{
     try {
       const {otp, email } = req.body;
