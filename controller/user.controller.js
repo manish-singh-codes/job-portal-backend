@@ -319,6 +319,7 @@ export const googleLogin = async (req,res) =>{
         phoneNumber: user.phoneNumber,
         role: user.role,
         profile: user.profile,
+        workExperience: user.overView.workExperience,
       },
       success: true,
     });
@@ -410,6 +411,7 @@ export const login = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       profile: user.profile,
+      workExperience: user.overView.workExperience,
     };
 
     const token = jwt.sign(tokenData, process.env.ACCESS_TOKEN, {
@@ -446,7 +448,7 @@ export const logout = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { fullname, email, phoneNumber, bio, skills } = req.body;
+    const { fullname, email, phoneNumber, bio, skills, workExperience } = req.body;
     const file = req.file;
 
     // File will be upload here ......
@@ -480,6 +482,16 @@ export const updateProfile = async (req, res) => {
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     if (skills) user.profile.skills = skillsArray;
+    if( workExperience) {
+      const newWorkExperience = {
+        companyName: workExperience.companyName,
+        designation: workExperience.designation,
+        from : workExperience.from,
+        to: workExperience.to,
+        description: workExperience.description
+      };
+      user.overView.workExperience.push(newWorkExperience);
+    }
 
     // resume will comes later here ..........
 
@@ -496,6 +508,7 @@ export const updateProfile = async (req, res) => {
       phoneNumber: user.phoneNumber,
       role: user.role,
       profile: user.profile,
+      workExperience: user.overView.workExperience,
     };
 
     return res.status(200).json({
@@ -527,6 +540,7 @@ export const getUser = async (req, res) =>{
                 phoneNumber: user.phoneNumber,
                 role: user.role,
                 profile: user.profile,
+                workExperience: user.overView.workExperience,
               };
             resolve(user);
         }).catch((error)=>{
